@@ -1,0 +1,30 @@
+import requests
+import json
+import pandas as pd
+
+api_key = 'zW8tYyrQiIik_N8HFs3ARaPFiiDxWeOQ9tkZBj6T_W-WgEt1SXtkLgKo1n-54Veve9TJTxckf13F4EH-2SW2drisG0DkGNZgGKpNJ2TkVOFuSjMWaxI2qmQ2l-hFZHYx'
+
+headers = {
+    "Authorization": "Bearer " + api_key
+}
+
+cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio"]
+
+dfs = []
+for city in cities:
+    for offset in range(0, 500, 50):
+        url = "https://api.yelp.com/v3/businesses/search"
+        params = {
+            "term": "restaurant",
+            "location": city,
+            "limit": 50,
+            "offset": offset,
+            "categories": "restaurants,bars,food",
+            "locale": "en_US"
+        }
+        response = requests.get(url, headers=headers, params=params)
+        data = json.loads(response.text)
+        df = pd.json_normalize(data["businesses"])
+        dfs.append(df)
+df = pd.concat(dfs)
+
